@@ -123,12 +123,13 @@ public class PaginationInterceptor implements Interceptor {
 			nameRegularExpress = SQL_PATTERN;
 		}
 		
-		String databaseType = properties.getProperty("databaseType");
+		String databaseType = StringUtils.upperCase(properties.getProperty("databaseType"));
 		Map<String, Class<? extends Dialect>> map = MybatisUtils.getSupportDatabaseType();
 		if(StringUtils.isNotEmpty(databaseType) && map.containsKey(databaseType)) {
 			try {
 				dialect = map.get(databaseType).newInstance();
 			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
 				log.error("Create new dialect type error.", e);
 			}
 		}

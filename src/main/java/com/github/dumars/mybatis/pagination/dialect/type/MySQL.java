@@ -11,7 +11,7 @@ public class MySQL implements Dialect {
 
 	@Override
 	public String generateCountSQL(String sql) {
-		return "select count(1) from (" + sql + ")";
+		return "select count(1) from (" + sql + ") as my_count";
 	}
 
 }

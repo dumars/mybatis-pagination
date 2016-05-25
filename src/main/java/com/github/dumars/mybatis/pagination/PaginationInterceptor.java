@@ -2,8 +2,10 @@ package com.github.dumars.mybatis.pagination;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.ibatis.executor.Executor;
@@ -21,6 +23,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 import com.github.dumars.mybatis.pagination.dialect.Dialect;
+import com.github.dumars.mybatis.pagination.dialect.type.MySQL;
 import com.github.dumars.mybatis.pagination.entity.Page;
 import com.github.dumars.mybatis.pagination.entity.PageContext;
 import com.github.dumars.mybatis.pagination.utils.MybatisUtils;
@@ -34,6 +37,7 @@ public class PaginationInterceptor implements Interceptor {
 
 	private final static String SQL_PATTERN = ".*WithPagination.*";
 	private Dialect dialect;
+	private String nameRegularExpress;
 
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
@@ -46,7 +50,7 @@ public class PaginationInterceptor implements Interceptor {
 		MappedStatement ms = (MappedStatement) args[0];
 		Object parameter = args[1];
 
-		if (ms.getId().matches(SQL_PATTERN)) {
+		if (ms.getId().matches(nameRegularExpress)) {
 			BoundSql boundSql = ms.getBoundSql(parameter);
 			Page page = PageContext.get();
 			String sql = dialect.generateLimitSQL(boundSql.getSql().trim(), page.getOffset(),
@@ -114,8 +118,26 @@ public class PaginationInterceptor implements Interceptor {
 
 	@Override
 	public void setProperties(Properties properties) {
-		// TODO define dialect
-		dialect = null;
+		nameRegularExpress = properties.getProperty("nameRegularExpress");
+		if(StringUtils.isEmpty(nameRegularExpress)) {
+			nameRegularExpress = SQL_PATTERN;
+		}
+		
+		String databaseType = StringUtils.upperCase(properties.getProperty("databaseType"));
+		Map<String, Class<? extends Dialect>> map = MybatisUtils.getSupportDatabaseType();
+		if(StringUtils.isNotEmpty(databaseType) && map.containsKey(databaseType)) {
+			try {
+				dialect = map.get(databaseType).newInstance();
+			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+				log.error("Create new dialect type error.", e);
+			}
+		}
+		
+		if(dialect == null) {
+			dialect = new MySQL();
+			log.error("The wrong database type setting, please recheck your configure. The default sql style will be MySQL.");
+		}
 	}
 
 	public static class BoundSqlSqlSource implements SqlSource {

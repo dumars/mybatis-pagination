@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.ExecutorException;
@@ -18,6 +21,7 @@ import org.apache.ibatis.scripting.xmltags.ForEachSqlNode;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.reflections.Reflections;
 
 import com.github.dumars.mybatis.pagination.dialect.Dialect;
 
@@ -95,5 +99,17 @@ public class MybatisUtils {
 				}
 			}
 		}
+	}
+	
+	public static Map<String, Class<? extends Dialect>> getSupportDatabaseType() {
+		Map<String, Class<? extends Dialect>> map = new HashMap<String, Class<? extends Dialect>>();
+		
+		Reflections reflections = new Reflections(Dialect.class.getPackage().getName());
+		Set<Class<? extends Dialect>> dialects = reflections.getSubTypesOf(Dialect.class);
+		for(Class<? extends Dialect> dialect : dialects) {
+			map.put(dialect.getSimpleName().toUpperCase(), dialect);
+		}
+		
+		return map;
 	}
 }

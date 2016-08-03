@@ -8,7 +8,7 @@ public class Oracle implements Dialect {
 
 	@Override
 	public String generateLimitSQL(String sql, int offset, int limit) {
-		sql = sql.trim().toLowerCase();
+		sql = sql.trim();
 		String forUpdate = null;
 		int index = StringUtils.indexOf(sql, " for update");
 		if(index > 0) {
@@ -26,7 +26,7 @@ public class Oracle implements Dialect {
 		sb.append(sql);
 		
 		if (offset > 0) {
-			sb.append(" ) row_ ) where rownum_ <= ").append(limit)
+			sb.append(" ) row_ ) where rownum_ <= ").append(offset + limit)
 				.append(" and rownum_ > ").append(offset);
 		} else {
 			sb.append(" ) where rownum <= ").append(limit);

@@ -21,7 +21,7 @@ pom.xml
     <dependency>
     	<groupId>com.github.dumars</groupId>
     	<artifactId>mybatis-pagination</artifactId>
-    	<version>0.0.2</version>
+    	<version>0.0.3</version>
     </dependency>
 </dependencies>
 ```
@@ -32,6 +32,7 @@ mybatis.xml
 ```xml
 <plugins>
 	<plugin interceptor="com.github.dumars.mybatis.pagination.PaginationInterceptor">
+		<!-- PostgreSQL, Oracle, MySQL -->
 		<property name="databaseType" value="PostgreSQL"/>
 		<property name="nameRegularExpress" value=".*WithPagination.*"/>
 	</plugin>

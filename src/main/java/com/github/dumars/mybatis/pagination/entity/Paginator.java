@@ -16,6 +16,13 @@ public class Paginator {
 		this.totalRows = page.getTotalRows();
 	}
 	
+	public Paginator(Object items, int pageNo, int pageSize, int totalRows) {
+		this.items = items;
+		this.pageNo = pageNo;
+		this.pageSize = pageSize;
+		this.totalRows = totalRows;
+	}
+	
 	public int getPageNo() {
 		return pageNo;
 	}
